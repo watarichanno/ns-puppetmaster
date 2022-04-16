@@ -2,12 +2,14 @@ import bs4
 from requests import cookies
 import requests
 import toml
+import time
 
 
 CONFIG_PATH = 'config.toml'
 NATION_SETTINGS_URL = "page=settings"
 NS_URL = 'https://www.nationstates.net/{form_url}'
 NATION_API_PING_URL = "https://www.nationstates.net/cgi-bin/api.cgi?nation={nation_name}&q=ping"
+SETTINGS_UPDATE_SLEEP_TIME = 6
 
 
 class AppError(Exception):
@@ -113,6 +115,7 @@ class NsSettingsUpdater:
         params = {**self.current_params, **params}
         resp = self.session.post(self.form_url, data=params)
         self.refresh_session(resp)
+        time.sleep(SETTINGS_UPDATE_SLEEP_TIME)
 
 
 class NsPuppetUpdater:
@@ -140,7 +143,7 @@ def get_puppet_names_from_file(file_path: str) -> list:
     """
 
     with open(file_path) as file:
-        return file.readlines()
+        return file.read().splitlines()
 
 
 def get_puppet_names(group_config: dict, group_name: str) -> list:
