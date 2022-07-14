@@ -45,8 +45,8 @@ class NsApi:
         return resp.headers['X-Pin']
 
 
-class NsSettingsUpdater:
-    """Send HTML forms to NationStates.
+class NsFormUpdater:
+    """Update HTML forms on NationStates with new values.
 
     Args:
         form_url (str): Relative URL of the form to send
@@ -103,7 +103,7 @@ class NsSettingsUpdater:
 
         self.session.cookies = cookies.cookiejar_from_dict({'pin': nation_pin})
         resp = self.session.get(self.form_url)
-        self.current_params = NsSettingsUpdater.get_form_params_from_html(resp.text)
+        self.current_params = NsFormUpdater.get_form_params_from_html(resp.text)
 
     def refresh_session(self, resp: requests.Response) -> None:
         """Refresh the current session.
@@ -112,33 +112,54 @@ class NsSettingsUpdater:
             resp (requests.Response): Response object
         """
 
-        self.current_params = NsSettingsUpdater.get_form_params_from_html(resp.text)
+        self.current_params = NsFormUpdater.get_form_params_from_html(resp.text)
 
-    def update_settings(self, params: dict) -> None:
+    def update_form(self, new_params: dict) -> None:
         """Send form data.
 
         Args:
-            params (dict): Form parameters
+            new_params (dict): New form values
         """
 
-        params = {**self.current_params, **params}
-        resp = self.session.post(self.form_url, data=params)
+        post_params = {**self.current_params, **new_params}
+        # Boolean false value means the user wants to remove the corresponding parameter.
+        post_params = dict(filter(lambda value : value != False, post_params.items()))
+        resp = self.session.post(self.form_url, data=post_params)
         self.refresh_session(resp)
         time.sleep(SETTINGS_UPDATE_SLEEP_TIME)
 
 
 class NsPuppetUpdater:
-    def __init__(self, ns_api: NsApi, settings_updater: NsSettingsUpdater) -> None:
+    """Update a puppet's settings.
+    """
+
+    def __init__(self, ns_api: NsApi, form_updater: NsFormUpdater) -> None:
+        """Update a puppet's settings.
+        """
+
         self.ns_api = ns_api
-        self.settings_updater = settings_updater
+        self.form_updater = form_updater
         self.nation_pin = None
 
-    def login(self, nation_name, password) -> None:
+    def login(self, nation_name: str, password: str) -> None:
+        """Log in to a puppet.
+
+        Args:
+            nation_name (str): Nation name
+            password (str): Password
+        """
+
         self.nation_pin = self.ns_api.login(nation_name, password)
 
     def update_settings(self, settings: dict) -> None:
-        self.settings_updater.create_session(self.nation_pin)
-        self.settings_updater.update_settings(settings)
+        """Update a puppet's settings
+
+        Args:
+            settings (dict): New settings values
+        """
+
+        self.form_updater.create_session(self.nation_pin)
+        self.form_updater.update_form(settings)
 
 
 def get_puppet_names_from_file(file_path: str) -> list:
@@ -207,8 +228,8 @@ def main():
     general_conf = config['general']
     user_agent = general_conf['user_agent']
     ns_api = NsApi(user_agent)
-    settings_updater = NsSettingsUpdater(user_agent, NATION_SETTINGS_URL)
-    puppet_updater = NsPuppetUpdater(ns_api, settings_updater)
+    form_updater = NsFormUpdater(user_agent, NATION_SETTINGS_URL)
+    puppet_updater = NsPuppetUpdater(ns_api, form_updater)
     update_puppets(config['puppets'], puppet_updater)
 
 
