@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "nspuppetmaster"
 version = "0.1.0"
-description = "A tool to manage the settings of NationStates puppet nations"
+description = "A script to update the settings of many NationStates puppet nations"
 authors = ["watarinishin <watarichanno@gmail.com>"]
 license = "MIT"
 
