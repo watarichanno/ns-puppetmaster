@@ -91,7 +91,7 @@ class NsFormUpdater:
             # We need to only include their POST value if they are checked.
             if tag.get('type') == 'checkbox':
                 if tag.has_attr('checked'):
-                    form_params[tag['name']] = tag['value']
+                    form_params[tag['name']] = tag.get('value', 'yes')
             elif tag.has_attr('value'):
                 form_params[tag['name']] = tag['value']
         return form_params
@@ -108,15 +108,6 @@ class NsFormUpdater:
         resp = self.session.get(self.form_url)
         self.current_params = NsFormUpdater.get_form_params_from_html(resp.text)
 
-    def refresh_session(self, resp: requests.Response) -> None:
-        """Refresh the current session.
-
-        Args:
-            resp (requests.Response): Response object
-        """
-
-        self.current_params = NsFormUpdater.get_form_params_from_html(resp.text)
-
     def update_form(self, new_params: dict) -> None:
         """Send form data.
 
@@ -127,8 +118,7 @@ class NsFormUpdater:
         post_params = {**self.current_params, **new_params}
         # Boolean false value means the user wants to remove the corresponding parameter.
         post_params = dict(filter(lambda value : value != False, post_params.items()))
-        resp = self.session.post(self.form_url, data=post_params)
-        self.refresh_session(resp)
+        self.session.post(self.form_url, data=post_params)
         time.sleep(SETTINGS_UPDATE_SLEEP_TIME)
 
 
