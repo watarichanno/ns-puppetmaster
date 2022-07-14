@@ -82,7 +82,16 @@ class NsSettingsUpdater:
 
         soup = bs4.BeautifulSoup(html, 'html.parser')
         input_tags = soup.find('form', attrs={"name": 'form'}).find_all('input')
-        return {tag['name']: tag['value'] for tag in input_tags if tag.has_attr('value')}
+        form_params = {}
+        for tag in input_tags:
+            # <input> tags with type="checkbox" only add POST parameter when they are checked.
+            # We need to only include their POST value if they are checked.
+            if tag.get('type') == 'checkbox':
+                if tag.has_attr('checked'):
+                    form_params[tag['name']] = tag['value']
+            elif tag.has_attr('value'):
+                form_params[tag['name']] = tag['value']
+        return form_params
 
     def create_session(self, nation_pin: str) -> None:
         """Create a new session authorized by a nation's pin
