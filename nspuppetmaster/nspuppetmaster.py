@@ -1,3 +1,6 @@
+"""A script to update settings of many NationStates puppet nations.
+"""
+
 import bs4
 from requests import cookies
 import requests
@@ -134,7 +137,11 @@ class NsPuppetUpdater:
     """
 
     def __init__(self, ns_api: NsApi, form_updater: NsFormUpdater) -> None:
-        """Update a puppet's settings.
+        """Update settings of a puppet.
+
+        Args:
+            ns_api (NsApi): NationStates API wrapper
+            form_updater (NsFormUpdater): NS form updater
         """
 
         self.ns_api = ns_api
@@ -206,7 +213,7 @@ def update_puppet_group(group_config: dict, group_name: str, puppet_updater: NsP
     """
 
     update_settings = False
-    if 'settings' in group_config:
+    if 'new_settings' in group_config:
         update_settings = True
 
     for nation_name in get_puppet_names(group_config, group_name):
@@ -214,23 +221,32 @@ def update_puppet_group(group_config: dict, group_name: str, puppet_updater: NsP
         puppet_updater.login(nation_name, password)
         print("Puppet {} logged in.".format(nation_name))
         if update_settings:
-            puppet_updater.update_settings(group_config['settings'])
+            puppet_updater.update_settings(group_config['new_settings'])
             print("Puppet {}'s settings updated.".format(nation_name))
 
 
-def update_puppets(puppet_groups: dict, puppet_updater: NsPuppetUpdater):
+def update_puppet_groups(puppet_groups: dict, puppet_updater: NsPuppetUpdater):
+    """Update provided puppet groups.
+
+    Args:
+        puppet_groups (dict): Configurations of puppet groups
+        puppet_updater (NsPuppetUpdater): Puppet updater
+    """
+
     for name, config in puppet_groups.items():
         update_puppet_group(config, name, puppet_updater)
 
 
 def main():
     config = toml.load(CONFIG_PATH)
-    general_conf = config['general']
-    user_agent = general_conf['user_agent']
+    general_config = config['general']
+    user_agent = general_config['user_agent']
+
     ns_api = NsApi(user_agent)
     form_updater = NsFormUpdater(user_agent, NATION_SETTINGS_URL)
     puppet_updater = NsPuppetUpdater(ns_api, form_updater)
-    update_puppets(config['puppets'], puppet_updater)
+
+    update_puppet_groups(config['puppets'], puppet_updater)
 
 
 if __name__ == '__main__':

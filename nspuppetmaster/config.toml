@@ -1,7 +1,7 @@
 [general]
-# User agent is a string that helps identify this application to NationStates.
+# The user agent is a string that helps identify this application to NationStates.
 # Place your main nation's name here
-user_agent = 'United States of Vietnam'
+user_agent = '<Your nation name here>'
 
 [puppets]
 [puppets.default]
@@ -12,5 +12,5 @@ password = 'hunterprime'
 # The file lists each nation name on each line.
 # nation_name_from_file = ''
 
-# Settings to apply to these puppets. (See [link] to know more details)
-# settings = ''
+# New settings to apply to these puppets. (See [link] to know how to use)
+# new_settings = []
