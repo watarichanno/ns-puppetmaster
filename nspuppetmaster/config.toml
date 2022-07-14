@@ -9,8 +9,9 @@ nation_names = ['nation1', 'nation2', 'nation3']
 password = 'hunterprime'
 
 # Get nation names from a text file instead.
+# If this is used, the nation_names config above is ignored.
 # The file lists each nation name on each line.
-# nation_name_from_file = ''
+# nation_name_file = ''
 
 # New settings to apply to these puppets. (See [link] to know how to use)
 # new_settings = {}

@@ -184,8 +184,8 @@ def get_puppet_names(group_config: dict, group_name: str) -> list:
         list: Puppet names
     """
 
-    if 'nation_names_from_file' in group_config:
-        return get_puppet_names_from_file(group_config['nation_names_from_file'])
+    if 'nation_name_file' in group_config:
+        return get_puppet_names_from_file(group_config['nation_name_file'])
 
     if 'nation_names' in group_config:
         return group_config['nation_names']
