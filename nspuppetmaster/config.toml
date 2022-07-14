@@ -13,4 +13,4 @@ password = 'hunterprime'
 # nation_name_from_file = ''
 
 # New settings to apply to these puppets. (See [link] to know how to use)
-# new_settings = []
+# new_settings = {}
